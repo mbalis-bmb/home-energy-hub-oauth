@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dJwTUepIHlfO+/k2LpMixcMtLmrM5Sb5jFNSMb/gnQs='; style-src 'sha256-NlWvtb+rTt1gG1y8ulja/JBr1viowU1QfDV8aNmQ7BQ='; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>Home Energy Hub sign-in</title>
+<style>
+body{margin:0;font:16px/1.5 system-ui,sans-serif;background:#0f1419;color:#e6e9ed}
+main{max-width:32rem;margin:0 auto;padding:3rem 1rem}
+h1{font-size:1.4rem;margin:0 0 1rem}
+a.button{display:inline-block;margin-top:1rem;padding:.75rem 1.25rem;border-radius:.5rem;background:#3b82f6;color:#fff;text-decoration:none}
+[hidden]{display:none}
+</style>
+</head>
+<body>
+<main>
+<h1>Home Energy Hub</h1>
+<div id="received" hidden>
+<p>eWeLink sign-in finished. Home Energy Hub should open now.</p>
+<p>If it did not open, tap the button below within 30 seconds. If more time has passed, start the sign-in again from the app.</p>
+<a id="open" class="button" href="#">Open Home Energy Hub</a>
+</div>
+<div id="missing">
+<p>No eWeLink authorization was received on this page.</p>
+<p>Return to Home Energy Hub and start the sign-in again. This page stores nothing and sends nothing.</p>
+</div>
+</main>
+<script>
+(function () {
+  "use strict";
+  // Read the redirect only in this tab: nothing is stored, logged, displayed or sent to another host.
+  var query = window.location.search;
+  var params = new URLSearchParams(query);
+  if (params.has("code") && params.has("state") && !params.has("error")) {
+    // Manual fallback only, never followed automatically: an Android intent pinned to the app's package that
+    // re-opens this exact URL in the app, which validates state itself. Without the app, the browser falls back to
+    // this page without parameters.
+    var fallback = encodeURIComponent("https://mbalis-bmb.github.io/home-energy-hub-oauth/oauth/callback/");
+    document.getElementById("open").href = "intent://mbalis-bmb.github.io/home-energy-hub-oauth/oauth/callback/" +
+      query + "#Intent;scheme=https;package=com.homeenergyhub.app;S.browser_fallback_url=" + fallback + ";end";
+    document.getElementById("received").hidden = false;
+    document.getElementById("missing").hidden = true;
+  }
+  // Remove the code from the address bar and from this tab's history entry.
+  if (query) window.history.replaceState(null, "", window.location.pathname);
+})();
+</script>
+</body>
+</html>
